@@ -1,0 +1,20 @@
+---
+# handlers file for rke2
+#
+# systemctl enable rke2-server.service
+# systemctl start rke2-server.service
+# curl against port 9345 ?
+# curl against the api port?
+
+
+- name: Make sure a service unit is running
+  systemd:
+    state: started
+    name: rke2-server
+  listen: "rke2-server service start"
+
+- name: Make sure a service unit is restarted
+  systemd:
+    state: restarted
+    name: rke2-server
+  listen: "rke2-server service restart"

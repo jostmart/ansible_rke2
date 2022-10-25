@@ -1,0 +1,21 @@
+{% if inventory_hostname in groups[rke2_servers_group_name] %}
+node-taint:
+  - "CriticalAddonsOnly=true:NoExecute"
+{% if rke2_additional_sans is defined and rke2_additional_sans %}
+tls-san:
+  - cluster.local
+  - {{ rke2_api_ip }}
+{% for san in rke2_additional_sans %}
+  - {{ san }}
+{%- endfor -%}
+{% endif %} {# rke2_additional_sans #}
+{% endif %} {# groups[rke2_servers_group_name] #}
+
+{% if not rke2_active_server  %}
+server: https://{{ rke2_cluster_registration_address }}:{{ rke2_cluster_registration_port }}
+{#token: {{ rke2_token }}  #}
+{%- endif -%} {# rke2_active server] #}
+
+{# Common settings for all nodes #}
+node-name: {{ inventory_hostname }}
+token: {{ rke2_token }}

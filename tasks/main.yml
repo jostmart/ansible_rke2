@@ -1,0 +1,70 @@
+---
+# tasks file for rke2
+#
+
+- name: create dir rancher
+  file:
+    dest: '/etc/rancher'
+    state: directory
+    mode: '0700'
+
+- name: create dir rke2
+  file:
+    dest: '/etc/rancher/rke2'
+    state: directory
+    mode: '0700'
+
+- name: Deploy configuration
+  template:
+    src: config.yaml.j2
+    dest: /etc/rancher/rke2/config.yaml
+    owner: root
+    mode: 0600
+
+- name: Download RKE2 installation script
+  ansible.builtin.get_url:
+    url: "{{ rke2_install_bash_url }}"
+    dest: "{{ rke2_install_script_dir }}/rke2.sh"
+    mode: 0700
+
+- name: Populate service facts
+  ansible.builtin.service_facts:
+
+- name: Run RKE2 script
+  ansible.builtin.command:
+    cmd: "{{ rke2_install_script_dir }}/rke2.sh"
+  environment:
+    INSTALL_RKE2_VERSION: "{{ rke2_version }}"
+    INSTALL_RKE2_CHANNEL_URL: "{{ rke2_channel_url }}"
+    INSTALL_RKE2_CHANNEL: "{{ rke2_channel }}"
+    INSTALL_RKE2_TYPE: "{{ rke2_type }}"
+  tags:
+    - installer
+  when: (rke2_version != ( installed_rke2_version.stdout | default({})) )
+        or ((installed_rke2_version is not defined) )
+
+- name: Start RKE2 service
+  ansible.builtin.systemd:
+    name: "rke2-{{ rke2_type }}.service"
+    state: started
+    enabled: true
+  retries: 30
+  delay: 15
+  register: result
+  until: result is not failed
+  environment:
+    RKE2_TOKEN: "{{ rke2_token }}"
+
+
+- name: Wait for the server be ready
+  ansible.builtin.shell: |
+    set -o pipefail
+    {{ rke2_data_path }}/bin/kubectl --kubeconfig /etc/rancher/rke2/rke2.yaml get nodes | grep "{{ inventory_hostname }}"
+  args:
+    executable: /bin/bash
+  changed_when: false
+  register: rke2_server
+  until:
+    '" Ready "  in rke2_server.stdout'
+  retries: 80
+  delay: 30
