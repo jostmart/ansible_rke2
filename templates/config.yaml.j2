@@ -1,13 +1,13 @@
 {% if inventory_hostname in groups[rke2_servers_group_name] %}
 node-taint:
   - "CriticalAddonsOnly=true:NoExecute"
-{% if rke2_additional_sans is defined and rke2_additional_sans %}
+
+{% if rke2_additional_sans is defined %}
 tls-san:
   - cluster.local
-  - {{ rke2_api_ip }}
 {% for san in rke2_additional_sans %}
   - {{ san }}
-{%- endfor -%}
+{% endfor %}
 {% endif %} {# rke2_additional_sans #}
 {% endif %} {# groups[rke2_servers_group_name] #}
 
