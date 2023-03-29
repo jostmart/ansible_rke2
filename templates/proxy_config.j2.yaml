@@ -1,0 +1,5 @@
+HTTP_PROXY={{rke2_proxy}}
+HTTPS_PROXY={{rke2_proxy}}
+{%if rke2_no_proxy is defined %}
+NO_PROXY={{rke2_no_proxy}}
+{% endif %}
