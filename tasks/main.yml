@@ -48,12 +48,12 @@
 
     - name: Set proxy config path (server)
       set_fact: 
-        rke2_service_defaults: "rke2_server"
+        rke2_service_defaults: "rke2-server"
       when: rke2_servers_group_name in group_names
 
     - name: Set proxy config path (agent)
       set_fact:
-        rke2_service_defaults: "rke2_agent"
+        rke2_service_defaults: "rke2-agent"
       when: rke2_agents_group_name in group_names
 
     - name: Configure proxy for RKE2 service
