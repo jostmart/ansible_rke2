@@ -60,7 +60,11 @@ For only the initial master, its really important to set:
 rke2_active_server: true
 ```
 
-
+If your server needs to connect via a proxy server to reach the internet add
+```
+rke2_proxy: "http://your.proxy.server:8080"
+rke2_no_proxy: 127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+```
 
 Example Playbook
 ----------------
